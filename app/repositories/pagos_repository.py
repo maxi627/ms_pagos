@@ -31,17 +31,17 @@ class PagosRepository(Repository_save, Repository_get, Repository_delete):
             db.session.rollback()
             raise e  # Relanzar para manejar en `PagosService`
     def update(self, id: int, new_data: Pagos) -> Pagos:
-    pago = self.get_by_id(id)
-    if not pago:
-        return None
-    
-    try:
-        for key, value in new_data.__dict__.items():
-            if value is not None:
-                setattr(pago, key, value)
+        pago = self.get_by_id(id)
+        if not pago:
+            return None
         
-        db.session.commit()
-        return pago
-    except Exception as e:
-        db.session.rollback()
-        raise e
+        try:
+            for key, value in new_data.__dict__.items():
+                if value is not None:
+                    setattr(pago, key, value)
+            
+            db.session.commit()
+            return pago
+        except Exception as e:
+            db.session.rollback()
+            raise e

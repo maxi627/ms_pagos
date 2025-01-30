@@ -3,12 +3,12 @@ from marshmallow import ValidationError
 from app.mapping import PagosSchema, ResponseSchema
 from app.services import PagosService, ResponseBuilder
 
-pagos_bp = Blueprint('pagos', __name__)  # 🔹 Cambié el nombre a `pagos_bp`
+Pagos = Blueprint('Pagos', __name__)  
 service = PagosService()
 pagos_schema = PagosSchema()
 response_schema = ResponseSchema()
 
-@pagos_bp.route('/pagos', methods=['GET'])  # 🔹 Cambié `/Pagos` a `/pagos`
+@Pagos.route('/pagos', methods=['GET'])  
 def all():
     response_builder = ResponseBuilder()
     try:
@@ -19,7 +19,7 @@ def all():
         response_builder.add_message("Error fetching pagos").add_status_code(500).add_data(str(e))
         return response_schema.dump(response_builder.build()), 500
 
-@pagos_bp.route('/pagos/<int:id>', methods=['GET'])  # 🔹 `/Pagos/<int:id>` → `/pagos/<int:id>`
+@Pagos.route('/pagos/<int:id>', methods=['GET'])  
 def one(id):
     response_builder = ResponseBuilder()
     try:
@@ -35,7 +35,7 @@ def one(id):
         response_builder.add_message("Error fetching pago").add_status_code(500).add_data(str(e))
         return response_schema.dump(response_builder.build()), 500
 
-@pagos_bp.route('/pagos', methods=['POST'])  # 🔹 Cambié `/Pagos` a `/pagos`
+@Pagos.route('/pagos', methods=['POST'])  
 def add():
     response_builder = ResponseBuilder()
     try:
@@ -54,7 +54,7 @@ def add():
         response_builder.add_message("Error creating pago").add_status_code(500).add_data(str(e))
         return response_schema.dump(response_builder.build()), 500
 
-@pagos_bp.route('/pagos/<int:id>', methods=['PUT'])
+@Pagos.route('/pagos/<int:id>', methods=['PUT'])
 def update(id):
     response_builder = ResponseBuilder()
     try:
@@ -78,7 +78,7 @@ def update(id):
         response_builder.add_message("Error updating pago").add_status_code(500).add_data(str(e))
         return response_schema.dump(response_schema.build()), 500
 
-@pagos_bp.route('/pagos/<int:id>', methods=['DELETE'])
+@Pagos.route('/pagos/<int:id>', methods=['DELETE'])
 def delete(id):
     response_builder = ResponseBuilder()
     try:
