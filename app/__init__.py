@@ -1,8 +1,9 @@
 import os
-
 from flask import Flask
 from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from app.config import cache_config, factory
 import redis
 import logging
@@ -10,7 +11,6 @@ import logging
 # Configuración de logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 # Instancia global de extensiones
 db = SQLAlchemy()
@@ -22,13 +22,23 @@ redis_port = int(os.getenv('REDIS_PORT', 6379))
 redis_password = os.getenv('REDIS_PASSWORD', '')
 redis_db = int(os.getenv('REDIS_DB', 0))
 
-# Crear una instancia de Redis
+# URI de Redis para Flask-Limiter
+redis_uri = f"redis://:{redis_password}@{redis_host}:{redis_port}/{redis_db}"
+
+# Crear una instancia de Redis para otras operaciones
 redis_client = redis.StrictRedis(
     host=redis_host,
     port=redis_port,
     db=redis_db,
     password=redis_password,
     decode_responses=True
+)
+
+# Inicializar el limitador con Redis como backend
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["10 per minute"],
+    storage_uri=redis_uri  # ✅ Pasar la URI en lugar de la instancia de Redis
 )
 
 # Verificar la conexión
@@ -48,7 +58,8 @@ def create_app():
 
     try:
         db.init_app(app)
-        cache.init_app(app, config=cache_config) 
+        cache.init_app(app, config=cache_config)
+        limiter.init_app(app)  # Inicializa Flask-Limiter con la app
     except Exception as e:
         raise RuntimeError(f"Error al inicializar extensiones: {e}")
 
@@ -64,4 +75,3 @@ def create_app():
         return {"message": "El servicio de pagos está en funcionamiento"}
 
     return app
-

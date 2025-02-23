@@ -5,8 +5,8 @@ from app.models import Pagos
 
 class PagosSchema(Schema):
     id = fields.Integer(dump_only=True)
-    producto_id = fields.Integer(dump_only=True)
-    precio= fields.Float(nullable=False)
+    producto_id = fields.Integer(required=True)  
+    precio = fields.Float(required=True)  
     medio_pago = fields.String(required=True, validate=validate.Length(min=8, max=40))
 
     @post_load

@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from marshmallow import ValidationError
+from app import limiter
 from app.mapping import PagosSchema, ResponseSchema
 from app.services import PagosService, ResponseBuilder
 
@@ -8,7 +9,9 @@ service = PagosService()
 pagos_schema = PagosSchema()
 response_schema = ResponseSchema()
 
-@Pagos.route('/pagos', methods=['GET'])  
+# Aplicar limitadores específicos en las rutas
+@Pagos.route('/pagos', methods=['GET'])
+@limiter.limit("5 per minute")  # Límite específico para esta ruta
 def all():
     response_builder = ResponseBuilder()
     try:
@@ -19,7 +22,8 @@ def all():
         response_builder.add_message("Error fetching pagos").add_status_code(500).add_data(str(e))
         return response_schema.dump(response_builder.build()), 500
 
-@Pagos.route('/pagos/<int:id>', methods=['GET'])  
+@Pagos.route('/pagos/<int:id>', methods=['GET'])
+@limiter.limit("5 per minute")  # Límite específico para esta ruta
 def one(id):
     response_builder = ResponseBuilder()
     try:
@@ -35,7 +39,8 @@ def one(id):
         response_builder.add_message("Error fetching pago").add_status_code(500).add_data(str(e))
         return response_schema.dump(response_builder.build()), 500
 
-@Pagos.route('/pagos', methods=['POST'])  
+@Pagos.route('/pagos', methods=['POST'])
+@limiter.limit("5 per minute")  # Límite específico para esta ruta
 def add():
     response_builder = ResponseBuilder()
     try:
@@ -55,6 +60,7 @@ def add():
         return response_schema.dump(response_builder.build()), 500
 
 @Pagos.route('/pagos/<int:id>', methods=['PUT'])
+@limiter.limit("5 per minute")  # Límite específico para esta ruta
 def update(id):
     response_builder = ResponseBuilder()
     try:
@@ -79,6 +85,7 @@ def update(id):
         return response_schema.dump(response_schema.build()), 500
 
 @Pagos.route('/pagos/<int:id>', methods=['DELETE'])
+@limiter.limit("3 per minute")  # Límite específico para esta ruta
 def delete(id):
     response_builder = ResponseBuilder()
     try:
