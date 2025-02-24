@@ -2,7 +2,7 @@ services:
   ms-pagos:
     build:
       context: .
-    image: ms-pagos:v1.0
+    image: ms-pagos:v1.1
     container_name: pagos_service
     environment:
       - FLASK_ENV=${FLASK_ENV}        #cambiar según el entorno a usar (development/production)
@@ -23,13 +23,12 @@ services:
       - ./src:/app  # Sincroniza tu carpeta local con la del contenedor
     networks:
       - red1
-    ports:
-      - "5002:5002"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ms-pagos.rule=Host(`pagos.localhost`) && PathPrefix(`/api/v1`)"
       - "traefik.http.services.ms-pagos.loadbalancer.server.port=5002"
-
+    deploy: 
+      replicas: 1  # Número de instancias que deseas
 networks:
   red1:
     external: true  # Usa la red compartida para la base de datos y redis
